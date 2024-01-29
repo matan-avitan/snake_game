@@ -1,5 +1,6 @@
 import copy
 import random
+import sys
 from typing import List, Optional
 
 import pygame
@@ -16,17 +17,24 @@ cell_number = 20
 
 
 class Fruit:
-    def __init__(self):
-        self._x = random.randint(0, cell_number - 1)
-        self._y = random.randint(0, cell_number - 1)
+    def __init__(self, fruit_forbidden_positions: List[Vector2]):
+        self._x = random.randint(2, cell_number - 2)
+        self._y = random.randint(2, cell_number - 2)
         self.position = Vector2(self._x, self._y)
+        while self.position in fruit_forbidden_positions:
+            self._x = random.randint(2, cell_number - 2)
+            self._y = random.randint(2, cell_number - 2)
+            self.position = Vector2(self._x, self._y)
+        sprites = Sprite("assets/snake-graphics.png")
+        self.apple_image = pygame.transform.scale(surface=sprites.get_sprite(0, 64 * 3, 64, 64),
+                                                  size=(cell_size, cell_size))
 
     def draw_fruit(self, screen):
         position_cell_x = int(self.position.x * cell_size)
         position_cell_y = int(self.position.y * cell_size)
         fruit_rect = pygame.Rect(position_cell_x, position_cell_y, cell_size, cell_size)
-        apple = pygame.transform.scale(pygame.image.load("assets/fruit.png").convert_alpha(), (cell_size, cell_size))
-        screen.blit(apple, fruit_rect)
+        # apple = pygame.transform.scale(pygame.image.load("assets/fruit.png").convert_alpha(), (cell_size, cell_size))
+        screen.blit(self.apple_image, fruit_rect)
 
 
 class Sprite:
@@ -68,8 +76,6 @@ class Snake:
         nexts = SnakeBlock(position=position - Vector2(1, 0), direction=direction)
         self.snake_body = SnakeBlock(position=position, direction=direction, next_block=nexts)
         self.snake_body.next_block.previous_block = self.snake_body
-        # self.body: List[Vector2] = [Vector2(cell_number // 2, cell_number // 2)]
-        # self.head = self.body[0]
         self._next_direction: Vector2 = direction
         self._length: int = 1
         self.eat_fruit = False
@@ -83,9 +89,17 @@ class Snake:
         self.tail_img = pygame.transform.scale(surface=snake_sprites.get_sprite(64 * 3, 64 * 2, 64, 64),
                                                size=(cell_size, cell_size))
 
+    @property
+    def snake_body_positions(self) -> List[Vector2]:
+        block_positions = []
+        block = self.snake_body
+        while block is not None:
+            block_positions.append(block.position)
+            block = block.next_block
+        return block_positions
+
     def draw_snake(self, screen):
         block_to_draw = self.snake_body
-        self.print_all_blocks()
         while block_to_draw:
             position_cell_x = int(block_to_draw.position.x * cell_size)
             position_cell_y = int(block_to_draw.position.y * cell_size)
@@ -152,12 +166,9 @@ class Snake:
             self._next_direction = direction
 
     def move(self):
-        print('move')
         if self.eat_fruit:
             self.add_block()
         else:
-            if self.snake_body.direction != self._next_direction:
-                print('123')
             new_direction = self._next_direction
             self.snake_body.direction = new_direction
             next_block_direction = self.snake_body.direction
@@ -171,16 +182,7 @@ class Snake:
                 next_block_direction = temp_direction
                 snake_block = snake_block.next_block
 
-    def print_all_blocks(self):
-        blocks = [dict(posistion=self.snake_body.position, direction=self.snake_body.direction)]
-        block = self.snake_body.next_block
-        while block is not None:
-            blocks.append(dict(posistion=block.position, direction=block.direction))
-            block = block.next_block
-        print(blocks)
-
     def add_block(self):
-        print('add_block')
         new_head_position = self.snake_body.position + self.snake_body.direction
         prev_blocks = copy.deepcopy(self.snake_body)
         new_snake_head = SnakeBlock(position=new_head_position, direction=self.snake_body.direction,
@@ -194,8 +196,12 @@ class Snake:
 class Game:
     def __init__(self):
         self.snake = Snake(Vector2(1, 0))
-        self.fruit = Fruit()
+        self.fruit = Fruit(fruit_forbidden_positions=self.snake.snake_body_positions)
+        self.score = 0
         self.game_over = False
+        self.game_font = pygame.font.SysFont('comicsans', 25)
+        self.background_tile_1 = pygame.image.load('assets/grass-pattern1.jpg')
+        self.background_tile_2 = pygame.image.load('assets/grass-pattern2.jpg')
 
     def update(self):
         self.snake.move()
@@ -214,11 +220,14 @@ class Game:
     def draw_elements(self, screen):
         self.fruit.draw_fruit(screen=screen)
         self.snake.draw_snake(screen=screen)
+        self.draw_score(screen=screen)
 
     def check_collision(self):
         if self.fruit.position == self.snake.snake_body.position:
             self.snake.eat_fruit = True
-            self.fruit = Fruit()
+            self.score += 1
+            fruit_forbidden_positions = self.snake.snake_body_positions
+            self.fruit = Fruit(fruit_forbidden_positions=fruit_forbidden_positions)
         self.check_snake_collision_with_boundary()
         self.check_snake_collision_with_itself()
 
@@ -235,20 +244,50 @@ class Game:
                 or not 0 <= self.snake.snake_body.position.y < cell_number):
             self.game_over = True
 
+    def draw_background(self, screen):
+        for row in range(cell_number):
+            if row % 2 == 0:
+                for column in range(cell_number):
+                    if column % 2 == 0:
+                        grass_rect = pygame.transform.scale(surface=self.background_tile_1, size=(cell_size, cell_size))
+                    else:
+                        grass_rect = pygame.transform.scale(surface=self.background_tile_2, size=(cell_size, cell_size))
+                    screen.blit(grass_rect, (row * cell_size, column * cell_size))
+            else:
+                for column in range(cell_number):
+                    if column % 2 == 0:
+                        grass_rect = pygame.transform.scale(surface=self.background_tile_2, size=(cell_size, cell_size))
+                    else:
+                        grass_rect = pygame.transform.scale(surface=self.background_tile_1, size=(cell_size, cell_size))
+                    screen.blit(grass_rect, (row * cell_size, column * cell_size))
 
-def draw_screen(screen):
-    screen.fill(WHITE)
+    def draw_score(self, screen):
+        score_text = f'Score: {self.score}'
+        score_surface = self.game_font.render(score_text, True, (56, 74, 12))
+        score_surface.set_colorkey((0, 0, 0, 0))  # Set black color as transparent
+
+        score_x = int(cell_size * cell_number - 60)
+        score_y = int(cell_size * cell_number - 40)
+        score_rect = score_surface.get_rect(center=(score_x, score_y))
+
+        screen.blit(score_surface, score_rect)
 
 
 def run():
+    import warnings
+
+    warnings.filterwarnings("ignore")
+
     pygame.init()
 
     screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
     clock = pygame.time.Clock()
     screen_update = pygame.USEREVENT
+
     game = Game()
-    pygame.time.set_timer(screen_update, 150)
+    pygame.time.set_timer(screen_update, 100)
     while True:
+        main_menu(screen=screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -259,14 +298,102 @@ def run():
                 game.update()
 
         if game.game_over:
-            pygame.time.delay(1000)
+            pygame.time.delay(100)
             break
-        screen.fill(GREEN)
+        game.draw_background(screen=screen)
         game.draw_elements(screen=screen)
         pygame.display.update()
         clock.tick(60)
     run()
 
 
+import pygame
+
+
+class Button(pygame.sprite.Sprite):
+    def __init__(self, image=None, pos=(0, 0), text_input="", font=None, base_color=(255, 255, 255),
+                 hovering_color=(200, 200, 200)):
+        super().__init__()
+
+        self.image = image
+        self.rect = self.image.get_rect(center=pos) if self.image else pygame.Rect(pos[0], pos[1], 0, 0)
+        self.font = font
+        self.base_color = base_color
+        self.hovering_color = hovering_color
+        self.text_input = text_input
+        self.update_text()
+
+    def update_text(self):
+        color = self.hovering_color if self.rect.collidepoint(pygame.mouse.get_pos()) else self.base_color
+        text = self.font.render(self.text_input, True, color)
+        self.image = text
+        self.rect = self.image.get_rect(center=self.rect.center)
+
+    def update(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def check_for_input(self, position):
+        return self.rect.collidepoint(position)
+
+
+def get_font(size):
+    return pygame.font.SysFont('comicsansms', size=size)
+
+
+def main_menu():
+    pygame.init()
+
+    screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+
+    pygame.display.set_caption('Menu')
+    game_cover = pygame.transform.scale(surface=pygame.image.load('assets/snake-game-cover.jpg'),
+                                        size=(cell_number * cell_size, cell_number * cell_size))
+    screen.blit(game_cover, (0, 0))
+    while True:
+        menu_mouse_position = pygame.mouse.get_pos()
+
+        menu_text = get_font(100).render('Main Menu', True, "#b68f40")
+        menu_rect = menu_text.get_rect(center=(cell_size * cell_number // 2, cell_size * cell_number // 6))
+
+        play_button = Button(image=None,
+                             pos=(cell_size * cell_number // 2,  cell_size * cell_number // 6 * 2),
+                             text_input="PLAY",
+                             font=get_font(75),
+                             base_color="#d7fcd4",
+                             hovering_color="White")
+        options_button = Button(image=None,
+                                pos=(cell_size * cell_number // 2, cell_size * cell_number // 6 * 3),
+                                text_input="OPTIONS",
+                                font=get_font(75),
+                                base_color="#d7fcd4",
+                                hovering_color="White")
+        quit_button = Button(image=None,
+                             pos=(cell_size * cell_number // 2, cell_size * cell_number // 6 * 4),
+                             text_input="QUIT",
+                             font=get_font(75),
+                             base_color="#d7fcd4",
+                             hovering_color="White")
+        screen.blit(menu_text, menu_rect)
+
+        for button in [play_button, options_button, quit_button]:
+            button.update_text()
+            button.update(screen=screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_button.check_for_input(position=menu_mouse_position):
+                    print("Play")
+                if options_button.check_for_input(position=menu_mouse_position):
+                    print('options')
+                if quit_button.check_for_input(position=menu_mouse_position):
+                    print('quit')
+                    pygame.quit()
+                    sys.exit()
+        pygame.display.update()
+
+
 if __name__ == '__main__':
-    run()
+    main_menu()
