@@ -13,7 +13,7 @@ BLUE = (50, 145, 168)
 SNAKE_WIDTH = 20
 SNAKE_HEIGHT = 40
 cell_size = 40
-cell_number = 20
+cell_number = 25
 
 
 class Fruit:
@@ -273,21 +273,18 @@ class Game:
         screen.blit(score_surface, score_rect)
 
 
-def run():
-    import warnings
+def game_over(screen):
+    pass
 
-    warnings.filterwarnings("ignore")
 
-    pygame.init()
-
-    screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+def play(screen):
     clock = pygame.time.Clock()
     screen_update = pygame.USEREVENT
+    pygame.time.set_timer(screen_update, 100)
 
     game = Game()
-    pygame.time.set_timer(screen_update, 100)
+
     while True:
-        main_menu(screen=screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -298,16 +295,13 @@ def run():
                 game.update()
 
         if game.game_over:
-            pygame.time.delay(100)
+            pygame.time.delay(200)
             break
-        game.draw_background(screen=screen)
-        game.draw_elements(screen=screen)
+        if not game.game_over:
+            game.draw_background(screen=screen)
+            game.draw_elements(screen=screen)
         pygame.display.update()
         clock.tick(60)
-    run()
-
-
-import pygame
 
 
 class Button(pygame.sprite.Sprite):
@@ -348,31 +342,35 @@ def main_menu():
     pygame.display.set_caption('Menu')
     game_cover = pygame.transform.scale(surface=pygame.image.load('assets/snake-game-cover.jpg'),
                                         size=(cell_number * cell_size, cell_number * cell_size))
-    screen.blit(game_cover, (0, 0))
     while True:
+        screen.blit(game_cover, (0, 0))
+
         menu_mouse_position = pygame.mouse.get_pos()
 
-        menu_text = get_font(100).render('Main Menu', True, "#b68f40")
+        menu_text = get_font(150).render('Menu', True, "#ebedbe")
         menu_rect = menu_text.get_rect(center=(cell_size * cell_number // 2, cell_size * cell_number // 6))
 
         play_button = Button(image=None,
-                             pos=(cell_size * cell_number // 2,  cell_size * cell_number // 6 * 2),
+                             pos=(cell_size * cell_number // 2, cell_size * cell_number // 6 * 2),
                              text_input="PLAY",
                              font=get_font(75),
                              base_color="#d7fcd4",
-                             hovering_color="White")
+                             hovering_color="White"
+                             )
         options_button = Button(image=None,
                                 pos=(cell_size * cell_number // 2, cell_size * cell_number // 6 * 3),
                                 text_input="OPTIONS",
                                 font=get_font(75),
                                 base_color="#d7fcd4",
-                                hovering_color="White")
+                                hovering_color="White"
+                                )
         quit_button = Button(image=None,
                              pos=(cell_size * cell_number // 2, cell_size * cell_number // 6 * 4),
                              text_input="QUIT",
                              font=get_font(75),
                              base_color="#d7fcd4",
-                             hovering_color="White")
+                             hovering_color="White"
+                             )
         screen.blit(menu_text, menu_rect)
 
         for button in [play_button, options_button, quit_button]:
@@ -385,7 +383,7 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.check_for_input(position=menu_mouse_position):
-                    print("Play")
+                    play(screen=screen)
                 if options_button.check_for_input(position=menu_mouse_position):
                     print('options')
                 if quit_button.check_for_input(position=menu_mouse_position):
