@@ -85,13 +85,16 @@ class Settings:
         self.cell_size = 40
         self.cell_number = 25
         self.difficulty = 'easy'
-        self.font = 'comicsansms'
-        self.tile_type = 'grass'
         self.screen_update_time = 100
-        self.screen_delay_on_game_over = 500
         self.fps = 60
         self.blocks = False
-        self.snake_color = 'brown'
+
+        self.update_difficulty()
+        self.font = 'comicsansms'
+        self.tile_type = 'grass'
+        self.screen_delay_on_game_over = 1000
+
+        self.snake_color = 'green'
 
     def update_difficulty(self, difficulty='easy'):
         self.difficulty = difficulty

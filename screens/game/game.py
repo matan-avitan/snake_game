@@ -1,7 +1,7 @@
 import pygame
 from pygame import Vector2, Surface
 
-from elements import Snake, Fruit
+from elements import Snake, Fruit, Wall
 from game_settings import Settings
 
 
@@ -16,6 +16,17 @@ class Game:
         self.game_font = pygame.font.SysFont(self.settings.font, 25)
         self.background_tile_1 = pygame.image.load(self.settings.get_tile_by_type().tile_1)
         self.background_tile_2 = pygame.image.load(self.settings.get_tile_by_type().tile_2)
+        self.border_height_left = Wall(settings=self.settings, start_position=Vector2(0, 0),
+                                       end_position=Vector2(0, self.settings.cell_number - 1))
+        self.border_width_up = Wall(settings=self.settings, start_position=Vector2(0, 0),
+                                    end_position=Vector2(self.settings.cell_number - 1, 0))
+        self.border_height_right = Wall(settings=self.settings,
+                                        start_position=Vector2(self.settings.cell_number - 1, 0),
+                                        end_position=Vector2(self.settings.cell_number - 1,
+                                                             self.settings.cell_number - 1))
+        self.border_width_down = Wall(settings=self.settings, start_position=Vector2(0, self.settings.cell_number - 1),
+                                      end_position=Vector2(self.settings.cell_number - 1,
+                                                           self.settings.cell_number - 1))
 
     def _update(self):
         self.snake.move()
@@ -35,6 +46,7 @@ class Game:
         self._draw_background()
         self.fruit.draw(screen=self.screen)
         self.snake.draw(screen=self.screen)
+        self._draw_border()
         self._draw_score()
 
     def _check_collision(self):
@@ -55,8 +67,8 @@ class Game:
             snake_block = snake_block.next_block
 
     def _check_snake_collision_with_boundary(self):
-        if (not 0 <= self.snake.snake_body.position.x < self.settings.cell_number
-                or not 0 <= self.snake.snake_body.position.y < self.settings.cell_number):
+        if (not 1 <= self.snake.snake_body.position.x < self.settings.cell_number - 1
+                or not 1 <= self.snake.snake_body.position.y < self.settings.cell_number - 1):
             self.game_over = True
 
     def _get_tile_1(self):
@@ -90,6 +102,12 @@ class Game:
         score_rect = score_surface.get_rect(center=(score_x, score_y))
 
         self.screen.blit(score_surface, score_rect)
+
+    def _draw_border(self):
+        self.border_height_right.draw(self.screen)
+        self.border_height_left.draw(self.screen)
+        self.border_width_up.draw(self.screen)
+        self.border_width_down.draw(self.screen)
 
     def play_game(self):
         clock = pygame.time.Clock()
