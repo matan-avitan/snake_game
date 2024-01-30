@@ -1,12 +1,12 @@
 import pygame
-from pygame import Vector2
+from pygame import Vector2, Surface
 
 from elements import Snake, Fruit
 from game_settings import Settings
 
 
 class Game:
-    def __init__(self, settings: Settings, screen: pygame.Surface):
+    def __init__(self, settings: Settings, screen: Surface):
         self.screen = screen
         self.settings = settings
         self.snake = Snake(settings=self.settings, direction=Vector2(1, 0))
@@ -33,8 +33,8 @@ class Game:
 
     def _draw_elements(self):
         self._draw_background()
-        self.fruit.draw_fruit(screen=self.screen)
-        self.snake.draw_snake(screen=self.screen)
+        self.fruit.draw(screen=self.screen)
+        self.snake.draw(screen=self.screen)
         self._draw_score()
 
     def _check_collision(self):

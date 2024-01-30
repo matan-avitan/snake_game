@@ -3,7 +3,7 @@ import pygame
 
 class Button(pygame.sprite.Sprite):
     def __init__(self, image=None, pos=(0, 0), text_input="", font=None, base_color=(255, 255, 255),
-                 hovering_color=(200, 200, 200)):
+                 hovering_color=(200, 200, 200), value=None):
         super().__init__()
 
         self.image = image
@@ -12,6 +12,7 @@ class Button(pygame.sprite.Sprite):
         self.base_color = base_color
         self.hovering_color = hovering_color
         self.text_input = text_input
+        self.value = value if value else self.text_input
         self.update_text()
 
     def update_text(self):

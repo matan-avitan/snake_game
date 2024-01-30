@@ -5,6 +5,7 @@ import pygame
 from elements import Button
 from game_settings import Settings
 from screens.game.game import Game
+from screens.options.options import Options
 
 
 class Menu:
@@ -55,7 +56,7 @@ class Menu:
                     if play_button.check_for_input(position=menu_mouse_position):
                         Game(settings=self.settings, screen=self.screen).play_game()
                     if options_button.check_for_input(position=menu_mouse_position):
-                        print('options')
+                        Options(settings=self.settings, screen=self.screen).options()
                     if quit_button.check_for_input(position=menu_mouse_position):
                         print('quit')
                         pygame.quit()

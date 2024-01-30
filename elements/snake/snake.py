@@ -17,15 +17,23 @@ class Snake:
 
     def __init__(self, settings: Settings, direction: Vector2):
         self.settings = settings
-        position = Vector2(self.settings.cell_number // 2, self.settings.cell_number // 2)
-        nexts = SnakeBlock(position=position - Vector2(1, 0), direction=direction)
         self.block_size = (self.settings.cell_size, self.settings.cell_size)
-        self.snake_body = SnakeBlock(position=position, direction=direction, next_block=nexts)
-        self.snake_body.next_block.previous_block = self.snake_body
         self._next_direction: Vector2 = direction
-        self._length: int = 1
+        self.snake_body = None
+        self._init_snake()
         self.eat_fruit = False
-        self.snake_sprites = SpriteExtractor(self.SNAKE_IMG_PATH)
+        self.snake_sprites = SpriteExtractor(self.settings.get_snake_color_path_by_type())
+
+    def _init_snake(self):
+        position = Vector2(self.settings.cell_number // 2, self.settings.cell_number // 2)
+        head = SnakeBlock(position=position, direction=self._next_direction)
+        body = SnakeBlock(position=position - self._next_direction, direction=self._next_direction, previous_block=head)
+        tail = SnakeBlock(position=position - 2 * self._next_direction,
+                          direction=self._next_direction,
+                          previous_block=body)
+        body.next_block = tail
+        head.next_block = body
+        self.snake_body = head
 
     @property
     def head_img(self) -> Surface:
@@ -110,7 +118,7 @@ class Snake:
         else:
             return transform.rotate(block_img, 270)
 
-    def draw_snake(self, screen):
+    def draw(self, screen):
         block_to_draw = self.snake_body
         while block_to_draw:
             position_cell_x = int(block_to_draw.position.x * self.settings.cell_size)
@@ -156,5 +164,4 @@ class Snake:
                                     next_block=prev_blocks)
         new_snake_head.next_block.previous_block = new_snake_head
         self.snake_body = new_snake_head
-        self._length += 1
         self.eat_fruit = False

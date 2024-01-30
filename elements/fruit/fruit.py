@@ -35,7 +35,7 @@ class Fruit:
         self._y = random.randint(1, self.settings.cell_number - 2)
         self.position = Vector2(self._x, self._y)
 
-    def draw_fruit(self, screen):
+    def draw(self, screen):
         position_cell_x = int(self.position.x * self.settings.cell_size)
         position_cell_y = int(self.position.y * self.settings.cell_size)
         fruit_rect = pygame.Rect(position_cell_x, position_cell_y, self.settings.cell_size, self.settings.cell_size)

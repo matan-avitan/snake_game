@@ -19,7 +19,22 @@ class Path(BaseModel):
 
 
 class SnakeColor(BaseModel):
-    pass
+    red: Path
+    green: Path
+    brown: Path
+
+
+class Difficult(BaseModel):
+    screen_update_time: int
+    fps: int
+    blocks: bool
+
+
+class DifficultyMapping(BaseModel):
+    easy: Difficult
+    medium: Difficult
+    hard: Difficult
+    very_hard: Difficult
 
 
 class Settings:
@@ -29,25 +44,69 @@ class Settings:
             tile_2='assets/grass-pattern2.jpg'
         ),
         stone=TilesType(
-            tile_1='assets/grass-pattern1.jpg',
-            tile_2='assets/grass-pattern2.jpg'
+            tile_1='assets/stone-pattern1.jpg',
+            tile_2='assets/stone-pattern2.jpg'
         ),
         dirt=TilesType(
-            tile_1='assets/grass-pattern1.jpg',
-            tile_2='assets/grass-pattern2.jpg'
+            tile_1='assets/sand-pattern1.jpg',
+            tile_2='assets/sand-pattern2.jpg'
         )
+    )
+
+    SNAKE_COLOR = SnakeColor(
+        red=Path(path='assets/snake-graphics-red.png'),
+        green=Path(path='assets/snake-graphics.png'),
+        brown=Path(path='assets/snake-graphics-brown.png')
+    )
+    DIFFICULTY_MAPPING = DifficultyMapping(
+        easy=Difficult(
+            screen_update_time=200,
+            fps=30,
+            blocks=False
+        ),
+        medium=Difficult(
+            screen_update_time=150,
+            fps=45,
+            blocks=False
+        ),
+        hard=Difficult(
+            screen_update_time=100,
+            fps=60,
+            blocks=False
+        ),
+        very_hard=Difficult(
+            screen_update_time=100,
+            fps=60,
+            blocks=True
+        ),
     )
 
     def __init__(self):
         self.cell_size = 40
         self.cell_number = 25
-        self.level = 'Easy'
+        self.difficulty = 'easy'
         self.font = 'comicsansms'
         self.tile_type = 'grass'
         self.screen_update_time = 100
-        self.screen_delay_on_game_over = 200
+        self.screen_delay_on_game_over = 500
         self.fps = 60
-        self.snake_color = 'green'
+        self.blocks = False
+        self.snake_color = 'brown'
+
+    def update_difficulty(self, difficulty='easy'):
+        self.difficulty = difficulty
+        if self.difficulty == 'easy':
+            difficult = self.DIFFICULTY_MAPPING.easy
+        elif self.difficulty == 'medium':
+            difficult = self.DIFFICULTY_MAPPING.easy
+        elif self.difficulty == 'hard':
+            difficult = self.DIFFICULTY_MAPPING.hard
+        else:
+            difficult = self.DIFFICULTY_MAPPING.very_hard
+
+        self.screen_update_time = difficult.screen_update_time
+        self.fps = difficult.fps
+        self.blocks = difficult.blocks
 
     def get_tile_by_type(self) -> TilesType:
         if self.tile_type == 'grass':
@@ -56,6 +115,14 @@ class Settings:
             return self.TILES.stone
         if self.tile_type == 'dirt':
             return self.TILES.dirt
+
+    def get_snake_color_path_by_type(self) -> str:
+        if self.snake_color == 'green':
+            return self.SNAKE_COLOR.green.path
+        if self.snake_color == 'red':
+            return self.SNAKE_COLOR.red.path
+        if self.snake_color == 'brown':
+            return self.SNAKE_COLOR.brown.path
 
     @property
     def tile_dimensions(self) -> Tuple[int, int]:
