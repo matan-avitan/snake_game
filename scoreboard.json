@@ -27,6 +27,10 @@
         {
             "score": 2,
             "name": "Matan"
+        },
+        {
+            "score": 1,
+            "name": "\u001bwe"
         }
     ],
     "medium": [
@@ -57,6 +61,14 @@
         {
             "score": 2,
             "name": "test"
+        },
+        {
+            "score": 0,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "asd"
         }
     ],
     "hard": [
