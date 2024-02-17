@@ -3,18 +3,17 @@ from pygame import Vector2, Surface
 
 from elements import Snake, Fruit, Wall, Darkness, SavingScoreModal
 from game_settings import Settings
+from screens.base_screen import BaseScreen
 
 
-class Game:
+class Game(BaseScreen):
     def __init__(self, settings: Settings, screen: Surface):
-        self.screen = screen
-        self.settings = settings
+        super().__init__(settings=settings, screen=screen)
         self.snake = Snake(settings=self.settings, direction=Vector2(1, 0))
         self.fruit = Fruit(settings=self.settings, fruit_forbidden_positions=self.snake.snake_body_positions)
         self.score = 0
         self.darkness = Darkness(settings=self.settings, snake_position=self.snake.snake_body.position)
         self.game_over = False
-        self.game_font = pygame.font.SysFont(self.settings.game_font, 25)
         self.background_tile_1 = pygame.image.load(self.settings.get_tile_by_type().tile_1)
         self.background_tile_2 = pygame.image.load(self.settings.get_tile_by_type().tile_2)
         self.border_height_left = Wall(settings=self.settings, start_position=Vector2(0, 0),
@@ -28,6 +27,7 @@ class Game:
         self.border_width_down = Wall(settings=self.settings, start_position=Vector2(0, self.settings.cell_number - 1),
                                       end_position=Vector2(self.settings.cell_number - 1,
                                                            self.settings.cell_number - 1))
+        self.screen_update = pygame.USEREVENT
 
     def _update(self):
         self.snake.move()
@@ -96,13 +96,10 @@ class Game:
 
     def _draw_score(self):
         score_text = f'Score: {self.score}'
-        score_surface = self.game_font.render(score_text, True, (255, 255, 255))
-        score_surface.set_colorkey((0, 0, 0, 0))  # Set black color as transparent
-
+        score_surface = self.settings.get_font(size=25).render(score_text, True, (255, 255, 255))
         score_x = int(self.settings.screen_width - 2 * self.settings.cell_size)
         score_y = int(self.settings.screen_width - 0.5 * self.settings.cell_size)
         score_rect = score_surface.get_rect(center=(score_x, score_y))
-
         self.screen.blit(score_surface, score_rect)
 
     def _draw_border(self):
@@ -111,24 +108,28 @@ class Game:
         self.border_width_up.draw(self.screen)
         self.border_width_down.draw(self.screen)
 
+    def check_for_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == self.screen_update:
+                self._update()
+            if event.type == pygame.KEYDOWN:
+                self._change_direction(event=event)
+                self._update()
+
+    def _game_over_screen(self):
+        pygame.time.delay(self.settings.screen_delay_on_game_over)
+        saving_score_modal = SavingScoreModal(settings=self.settings, score=self.score)
+        saving_score_modal.draw_score_input_modal(screen=self.screen)
+
     def play_game(self):
         clock = pygame.time.Clock()
-        screen_update = pygame.USEREVENT
-        pygame.time.set_timer(screen_update, self.settings.screen_update_time)
+        pygame.time.set_timer(self.screen_update, self.settings.screen_update_time)
         while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                if event.type == screen_update:
-                    self._update()
-                if event.type == pygame.KEYDOWN:
-                    self._change_direction(event=event)
-                    self._update()
-
+            self.check_for_events()
             if self.game_over:
-                pygame.time.delay(self.settings.screen_delay_on_game_over)
-                SavingScoreModal(settings=self.settings, score=self.score).draw_score_input_modal(screen=self.screen)
-
+                self._game_over_screen()
                 break
             else:
                 self.darkness.update_snake_position(self.snake.snake_body.position)

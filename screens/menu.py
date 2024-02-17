@@ -24,9 +24,6 @@ class Menu(BaseScreen):
         self.leaderboard_button = self._get_button(text="Leader Board", y_position=4)
         self.quit_button = self._get_button(text="Quit", y_position=5)
 
-    def _get_font(self, size):
-        return pygame.font.SysFont(self.settings.game_font, size=size)
-
     def _draw_title(self):
         menu_text = self.settings.get_font(size=150).render('Menu', True, "#ebedbe")
         menu_rect = menu_text.get_rect(center=(self.settings.screen_width // 2, self.settings.screen_height // 6))

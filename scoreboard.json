@@ -13,8 +13,16 @@
             "name": "Test 2"
         },
         {
+            "score": 4,
+            "name": "ma"
+        },
+        {
             "score": 3,
             "name": "matan"
+        },
+        {
+            "score": 3,
+            "name": "a"
         },
         {
             "score": 2,
@@ -31,6 +39,10 @@
         {
             "score": 1,
             "name": "\u001bwe"
+        },
+        {
+            "score": 1,
+            "name": "a"
         },
         {
             "score": 1,
@@ -133,6 +145,10 @@
             "name": "test"
         },
         {
+            "score": 3,
+            "name": "a"
+        },
+        {
             "score": 2,
             "name": "Matan"
         },
@@ -142,6 +158,10 @@
         },
         {
             "score": 1,
+            "name": "a"
+        },
+        {
+            "score": 0,
             "name": "a"
         },
         {
