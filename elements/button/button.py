@@ -12,7 +12,7 @@ class Button(pygame.sprite.Sprite):
         self.base_color = base_color
         self.hovering_color = hovering_color
         self.text_input = text_input
-        self.value = value if value else self.text_input
+        self.value = value if value is not None else self.text_input
         self.update_text()
 
     def update_text(self):

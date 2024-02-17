@@ -1,7 +1,7 @@
 import pygame
 from pygame import Vector2, Surface
 
-from elements import Snake, Fruit, Wall
+from elements import Snake, Fruit, Wall, Darkness
 from game_settings import Settings
 
 
@@ -12,6 +12,7 @@ class Game:
         self.snake = Snake(settings=self.settings, direction=Vector2(1, 0))
         self.fruit = Fruit(settings=self.settings, fruit_forbidden_positions=self.snake.snake_body_positions)
         self.score = 0
+        self.darkness = Darkness(settings=self.settings, snake_position=self.snake.snake_body.position)
         self.game_over = False
         self.game_font = pygame.font.SysFont(self.settings.font, 25)
         self.background_tile_1 = pygame.image.load(self.settings.get_tile_by_type().tile_1)
@@ -47,6 +48,7 @@ class Game:
         self.fruit.draw(screen=self.screen)
         self.snake.draw(screen=self.screen)
         self._draw_border()
+        self.darkness.draw(screen=self.screen)
         self._draw_score()
 
     def _check_collision(self):
@@ -127,6 +129,7 @@ class Game:
                 pygame.time.delay(self.settings.screen_delay_on_game_over)
                 break
             if not self.game_over:
+                self.darkness.update_snake_position(self.snake.snake_body.position)
                 self._draw_elements()
             pygame.display.update()
             clock.tick(self.settings.fps)

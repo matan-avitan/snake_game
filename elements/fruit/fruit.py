@@ -31,8 +31,8 @@ class Fruit:
             size=(self.settings.cell_size, self.settings.cell_size))
 
     def _choose_random_location(self):
-        self._x = random.randint(1, self.settings.cell_number - 2)
-        self._y = random.randint(1, self.settings.cell_number - 2)
+        self._x = random.randint(2, self.settings.cell_number - 3)
+        self._y = random.randint(2, self.settings.cell_number - 3)
         self.position = Vector2(self._x, self._y)
 
     def draw(self, screen):

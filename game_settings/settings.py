@@ -34,7 +34,6 @@ class DifficultyMapping(BaseModel):
     easy: Difficult
     medium: Difficult
     hard: Difficult
-    very_hard: Difficult
 
 
 class Settings:
@@ -73,12 +72,7 @@ class Settings:
             screen_update_time=100,
             fps=60,
             blocks=False
-        ),
-        very_hard=Difficult(
-            screen_update_time=100,
-            fps=60,
-            blocks=True
-        ),
+        )
     )
 
     def __init__(self):
@@ -93,8 +87,12 @@ class Settings:
         self.font = 'comicsansms'
         self.tile_type = 'grass'
         self.screen_delay_on_game_over = 1000
-
+        self.darkness_mode = False
         self.snake_color = 'green'
+
+    def update_darkness_mode(self, darkness_mode: bool):
+        print('Darkness mode:', darkness_mode)
+        self.darkness_mode = darkness_mode
 
     def update_difficulty(self, difficulty='easy'):
         self.difficulty = difficulty
@@ -102,14 +100,10 @@ class Settings:
             difficult = self.DIFFICULTY_MAPPING.easy
         elif self.difficulty == 'medium':
             difficult = self.DIFFICULTY_MAPPING.easy
-        elif self.difficulty == 'hard':
-            difficult = self.DIFFICULTY_MAPPING.hard
         else:
-            difficult = self.DIFFICULTY_MAPPING.very_hard
-
+            difficult = self.DIFFICULTY_MAPPING.hard
         self.screen_update_time = difficult.screen_update_time
         self.fps = difficult.fps
-        self.blocks = difficult.blocks
 
     def get_tile_by_type(self) -> TilesType:
         if self.tile_type == 'grass':

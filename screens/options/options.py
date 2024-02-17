@@ -1,4 +1,6 @@
 import sys
+from typing import List
+
 import pygame
 from pygame import Surface
 from elements import Button
@@ -21,6 +23,8 @@ class Options:
         {"text": "Medium", "color": "orange", 'value': 'medium'},
         {"text": "Hard", "color": "red", 'value': 'hard'},
     ]
+    DARKNESS_MODE_OPTIONS = [{'text': 'Off', 'color': 'gold', 'value': False},
+                             {'text': 'On', 'color': 'gold', 'value': True}]
     MENU_COVER_PATH = 'assets/snake-game-cover.jpg'
 
     def __init__(self, settings: Settings, screen: Surface):
@@ -30,6 +34,7 @@ class Options:
         self.selected_snake_color = self.settings.snake_color
         self.selected_board_type = self.settings.tile_type
         self.selected_difficult = self.settings.difficulty
+        self.selected_darkness_mode = self.settings.darkness_mode
         self.game_cover = pygame.transform.scale(surface=pygame.image.load(self.MENU_COVER_PATH),
                                                  size=self.settings.screen_dimensions)
 
@@ -51,7 +56,7 @@ class Options:
     def _draw_snake_color_options_title(self):
         options_text = self._get_font(50).render("Select Snake Color:", True, "black")  # Adjusted font size
         options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 9 * 1))
+            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 1))
         self.screen.blit(options_text, options_rect)
 
     def _draw_snake_colors_buttons(self):
@@ -62,7 +67,7 @@ class Options:
             color = color_button["color"] if is_selected else "black"
             button = Button(
                 image=None,
-                pos=(x_position, self.settings.screen_height // 9 * 2),
+                pos=(x_position, self.settings.screen_height // 12 * 2),
                 text_input=color_button["text"],
                 font=self._get_font(40),
                 base_color=color,
@@ -78,7 +83,7 @@ class Options:
     def _draw_board_options_title(self):
         options_text = self._get_font(50).render("Select Board Type:", True, "black")  # Adjusted font size
         options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 9 * 3))
+            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 3))
         self.screen.blit(options_text, options_rect)
 
     def _draw_board_type_buttons(self):
@@ -89,7 +94,7 @@ class Options:
             color = board_types['color'] if is_selected else "black"
             button = Button(
                 image=None,
-                pos=(x_position, self.settings.screen_height // 9 * 4),
+                pos=(x_position, self.settings.screen_height // 12 * 4),
                 text_input=board_types["text"],
                 font=self._get_font(40),
                 base_color=color,
@@ -105,7 +110,7 @@ class Options:
     def _draw_difficult_options_title(self):
         options_text = self._get_font(50).render("Select Difficult Type:", True, "black")
         options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 9 * 5))
+            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 5))
         self.screen.blit(options_text, options_rect)
 
     def _draw_difficult_options_buttons(self):
@@ -116,12 +121,39 @@ class Options:
             color = difficult_type['color'] if is_selected else "black"
             button = Button(
                 image=None,
-                pos=(x_position, self.settings.screen_height // 9 * 6),
+                pos=(x_position, self.settings.screen_height // 12 * 6),
                 text_input=difficult_type["text"],
                 font=self._get_font(40),
                 base_color=color,
                 hovering_color="white",
                 value=difficult_type["value"]
+            )
+
+            button.update_text()
+            button.update(self.screen)
+            board_type_buttons.append(button)
+        return board_type_buttons
+
+    def _draw_darkness_options_title(self):
+        options_text = self._get_font(50).render("Darkness Mode:", True, "black")
+        options_rect = options_text.get_rect(
+            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 7))
+        self.screen.blit(options_text, options_rect)
+
+    def _draw_darkness_options_buttons(self):
+        board_type_buttons = []
+        for index, darkness_mode in enumerate(self.DARKNESS_MODE_OPTIONS):
+            is_selected = darkness_mode['value'] == self.settings.darkness_mode
+            x_position = self.settings.screen_width // 12 * (2 * index + 5)
+            color = darkness_mode['color'] if is_selected else "black"
+            button = Button(
+                image=None,
+                pos=(x_position, self.settings.screen_height // 12 * 8),
+                text_input=darkness_mode["text"],
+                font=self._get_font(40),
+                base_color=color,
+                hovering_color="white",
+                value=darkness_mode["value"]
             )
 
             button.update_text()
@@ -144,6 +176,9 @@ class Options:
 
             self._draw_difficult_options_title()
             difficult_types_buttons = self._draw_difficult_options_buttons()
+
+            self._draw_darkness_options_title()
+            darkness_buttons = self._draw_darkness_options_buttons()
 
             options_back = self._get_button(text="Back", y_position=8, is_selected=False)
             options_back.update_text()
@@ -169,6 +204,10 @@ class Options:
                                 options_mouse_pos):
                             self.selected_difficult = difficult_types_button.value
                             self.settings.update_difficulty(difficult_types_button.value)
+                    for darkness_button in darkness_buttons:
+                        if event.type == pygame.MOUSEBUTTONUP and darkness_button.check_for_input(options_mouse_pos):
+                            self.selected_darkness_mode = darkness_button.value
+                            self.settings.update_darkness_mode(darkness_button.value)
 
             if self.back:
                 break
