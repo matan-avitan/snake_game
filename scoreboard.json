@@ -31,6 +31,10 @@
         {
             "score": 1,
             "name": "\u001bwe"
+        },
+        {
+            "score": 1,
+            "name": "a"
         }
     ],
     "medium": [
@@ -63,12 +67,36 @@
             "name": "test"
         },
         {
+            "score": 2,
+            "name": "a"
+        },
+        {
+            "score": 1,
+            "name": "a"
+        },
+        {
+            "score": 1,
+            "name": "a"
+        },
+        {
             "score": 0,
             "name": "a"
         },
         {
             "score": 0,
             "name": "asd"
+        },
+        {
+            "score": 0,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "a"
         }
     ],
     "hard": [
@@ -107,6 +135,14 @@
         {
             "score": 2,
             "name": "hi"
+        },
+        {
+            "score": 1,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "a"
         }
     ]
 }

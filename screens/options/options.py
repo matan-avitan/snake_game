@@ -1,219 +1,124 @@
 import sys
-from typing import List
+from typing import List, Optional
 
 import pygame
-from pygame import Surface, SRCALPHA
+from pygame import Surface
 from elements import Button
 from game_settings import Settings
+from screens.base_screen import BaseScreen
+from screens.options.objects import ButtonOptions, ButtonOption
 
 
-class Options:
-    COLOR_BUTTONS = [
-        {"text": "Red", "color": "red", 'value': 'red'},
-        {"text": "Brown", "color": "brown", 'value': 'brown'},
-        {"text": "Green", "color": "green", 'value': 'green'},
-    ]
-    BOARD_TYPE = [
-        {"text": "Grass", "color": "green", 'value': 'grass'},
-        {"text": "Stone", "color": "gray", 'value': 'stone'},
-        {"text": "Sand", "color": "brown", 'value': 'sand'},
-    ]
-    DIFFICULT_TYPE = [
-        {"text": "Easy", "color": "green", 'value': 'easy'},
-        {"text": "Medium", "color": "orange", 'value': 'medium'},
-        {"text": "Hard", "color": "red", 'value': 'hard'},
-    ]
-    DARKNESS_MODE_OPTIONS = [{'text': 'Off', 'color': 'gold', 'value': False},
-                             {'text': 'On', 'color': 'gold', 'value': True}]
-    MENU_COVER_PATH = 'assets/snake-game-cover.jpg'
+class Options(BaseScreen):
 
-    def __init__(self, settings: Settings, screen: Surface):
-        self.screen = screen
-        self.settings = settings
+    def __init__(self, settings: Optional[Settings], screen: Optional[Surface]):
+        super().__init__(settings=settings, screen=screen)
+        self.button_options = ButtonOptions()
         self.back = False
         self.selected_snake_color = self.settings.snake_color
         self.selected_board_type = self.settings.tile_type
         self.selected_difficult = self.settings.difficulty
         self.selected_darkness_mode = self.settings.darkness_mode
-        self.game_cover = pygame.transform.scale(surface=pygame.image.load(self.MENU_COVER_PATH),
-                                                 size=self.settings.screen_dimensions)
-        self.game_cover.fill((255, 255, 255, 180), None, pygame.BLEND_RGBA_MULT)  # Increase opacity
+        self._get_all_buttons()
 
+    def _get_all_buttons(self):
+        self.color_buttons = self._get_buttons(button_option_type=self.button_options.color_buttons,
+                                               selected_option=self.selected_snake_color, y_position=2,
+                                               starting_x_position=4)
 
-    def _get_font(self, size):
-        return pygame.font.SysFont(self.settings.game_font, size=size)
+        self.board_types_buttons = self._get_buttons(button_option_type=self.button_options.board_types,
+                                                     selected_option=self.selected_board_type, y_position=4,
+                                                     starting_x_position=4)
 
-    def _get_button(self, text, y_position, x_position=None, is_selected=False, value=None) -> Button:
-        color = "blue" if is_selected else "black"
-        x_position = self.settings.screen_width // 2 if not x_position else x_position
-        return Button(image=None,
-                      pos=(x_position, self.settings.screen_height // 9 * y_position),
-                      text_input=text,
-                      font=self._get_font(50),
-                      base_color=color,
-                      hovering_color="white",
-                      value=value
-                      )
+        self.difficult_types_buttons = self._get_buttons(button_option_type=self.button_options.difficult_types,
+                                                         selected_option=self.selected_difficult, y_position=6,
+                                                         starting_x_position=4)
 
-    def _draw_snake_color_options_title(self):
-        options_text = self._get_font(50).render("Select Snake Color:", True, "black")  # Adjusted font size
+        self.darkness_buttons = self._get_buttons(button_option_type=self.button_options.darkness_mode_options,
+                                                  selected_option=self.selected_darkness_mode, y_position=8,
+                                                  starting_x_position=5)
+        self.options_back = self._get_button(text="Back", y_position=5)
+
+    def _draw_options_title(self, text: str, screen_position: int):
+        options_text = self.settings.get_font(50).render(text, True, "black")
         options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 1))
+            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * screen_position))
         self.screen.blit(options_text, options_rect)
 
-    def _draw_snake_colors_buttons(self):
-        color_buttons = []
-        for index, color_button in enumerate(self.COLOR_BUTTONS):
-            is_selected = color_button["color"] == self.selected_snake_color
-            x_position = self.settings.screen_width // 12 * (2 * index + 4)
-            color = color_button["color"] if is_selected else "black"
+    def _get_buttons(self, button_option_type: List[ButtonOption], selected_option, y_position: int,
+                     starting_x_position: int) -> List[Button]:
+        buttons = []
+        for index, board_types in enumerate(button_option_type):
+            is_selected = board_types.value == selected_option
+            x_position = self.settings.screen_width // 12 * (2 * index + starting_x_position)
+            color = board_types.color if is_selected else "black"
             button = Button(
                 image=None,
-                pos=(x_position, self.settings.screen_height // 12 * 2),
-                text_input=color_button["text"],
-                font=self._get_font(40),
+                pos=(x_position, self.settings.screen_height // 12 * y_position),
+                text_input=board_types.text,
+                font=self.settings.get_font(40),
                 base_color=color,
                 hovering_color="white",
-                value=color_button["color"]
+                value=board_types.value
             )
+            buttons.append(button)
+        return buttons
 
+    def _draw_button_type(self, buttons_type: List[Button]):
+        for button in buttons_type:
             button.update_text()
             button.update(self.screen)
-            color_buttons.append(button)
-        return color_buttons
 
-    def _draw_board_options_title(self):
-        options_text = self._get_font(50).render("Select Board Type:", True, "black")  # Adjusted font size
-        options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 3))
-        self.screen.blit(options_text, options_rect)
+    def draw_buttons(self):
+        self._get_all_buttons()
+        self._draw_button_type(buttons_type=self.color_buttons)
+        self._draw_button_type(buttons_type=self.board_types_buttons)
+        self._draw_button_type(buttons_type=self.difficult_types_buttons)
+        self._draw_button_type(buttons_type=self.darkness_buttons)
+        self.options_back.update_text()
+        self.options_back.update(self.screen)
 
-    def _draw_board_type_buttons(self):
-        board_type_buttons = []
-        for index, board_types in enumerate(self.BOARD_TYPE):
-            is_selected = board_types["value"] == self.selected_board_type
-            x_position = self.settings.screen_width // 12 * (2 * index + 4)
-            color = board_types['color'] if is_selected else "black"
-            button = Button(
-                image=None,
-                pos=(x_position, self.settings.screen_height // 12 * 4),
-                text_input=board_types["text"],
-                font=self._get_font(40),
-                base_color=color,
-                hovering_color="white",
-                value=board_types["value"]
-            )
+    def _draw_titles(self):
+        self._draw_options_title(text='Select Snake Color:', screen_position=1)
+        self._draw_options_title(text='Select Board Type:', screen_position=3)
+        self._draw_options_title(text='Select Difficult Type:', screen_position=5)
+        self._draw_options_title(text='Darkness Mode:', screen_position=7)
 
-            button.update_text()
-            button.update(self.screen)
-            board_type_buttons.append(button)
-        return board_type_buttons
-
-    def _draw_difficult_options_title(self):
-        options_text = self._get_font(50).render("Select Difficult Type:", True, "black")
-        options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 5))
-        self.screen.blit(options_text, options_rect)
-
-    def _draw_difficult_options_buttons(self):
-        board_type_buttons = []
-        for index, difficult_type in enumerate(self.DIFFICULT_TYPE):
-            is_selected = difficult_type["value"] == self.selected_difficult
-            x_position = self.settings.screen_width // 12 * (2 * index + 4)
-            color = difficult_type['color'] if is_selected else "black"
-            button = Button(
-                image=None,
-                pos=(x_position, self.settings.screen_height // 12 * 6),
-                text_input=difficult_type["text"],
-                font=self._get_font(40),
-                base_color=color,
-                hovering_color="white",
-                value=difficult_type["value"]
-            )
-
-            button.update_text()
-            button.update(self.screen)
-            board_type_buttons.append(button)
-        return board_type_buttons
-
-    def _draw_darkness_options_title(self):
-        options_text = self._get_font(50).render("Darkness Mode:", True, "black")
-        options_rect = options_text.get_rect(
-            center=(self.settings.screen_width // 2, self.settings.screen_height // 12 * 7))
-        self.screen.blit(options_text, options_rect)
-
-    def _draw_darkness_options_buttons(self):
-        board_type_buttons = []
-        for index, darkness_mode in enumerate(self.DARKNESS_MODE_OPTIONS):
-            is_selected = darkness_mode['value'] == self.settings.darkness_mode
-            x_position = self.settings.screen_width // 12 * (2 * index + 5)
-            color = darkness_mode['color'] if is_selected else "black"
-            button = Button(
-                image=None,
-                pos=(x_position, self.settings.screen_height // 12 * 8),
-                text_input=darkness_mode["text"],
-                font=self._get_font(40),
-                base_color=color,
-                hovering_color="white",
-                value=darkness_mode["value"]
-            )
-
-            button.update_text()
-            button.update(self.screen)
-            board_type_buttons.append(button)
-        return board_type_buttons
+    def check_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONUP:
+                if self.options_back.check_for_input(self.mouse_position):
+                    self.back = True
+                for color_button in self.color_buttons:
+                    if event.type == pygame.MOUSEBUTTONUP and color_button.check_for_input(self.mouse_position):
+                        self.selected_snake_color = color_button.value
+                        self.settings.snake_color = color_button.value
+                for board_types_button in self.board_types_buttons:
+                    if event.type == pygame.MOUSEBUTTONUP and board_types_button.check_for_input(
+                            self.mouse_position):
+                        self.selected_board_type = board_types_button.value
+                        self.settings.tile_type = board_types_button.value
+                for difficult_types_button in self.difficult_types_buttons:
+                    if event.type == pygame.MOUSEBUTTONUP and difficult_types_button.check_for_input(
+                            self.mouse_position):
+                        self.selected_difficult = difficult_types_button.value
+                        self.settings.update_difficulty(difficult_types_button.value)
+                for darkness_button in self.darkness_buttons:
+                    if event.type == pygame.MOUSEBUTTONUP and darkness_button.check_for_input(
+                            self.mouse_position):
+                        self.selected_darkness_mode = darkness_button.value
+                        self.settings.update_darkness_mode(darkness_button.value)
 
     def options(self):
         while True:
-            options_mouse_pos = pygame.mouse.get_pos()
-
-            # self.screen.fill("#ebedbe")
-            self.screen.blit(self.game_cover, (0, 0))
-            background_surface = pygame.Surface((self.settings.screen_width, self.settings.screen_height), SRCALPHA)
-            background_surface.fill((0, 0, 0, 128))  # Semi-transparent black
-            self.screen.blit(background_surface, (0, 0))
-
-            self._draw_snake_color_options_title()
-            color_buttons = self._draw_snake_colors_buttons()
-
-            self._draw_board_options_title()
-            board_types_buttons = self._draw_board_type_buttons()
-
-            self._draw_difficult_options_title()
-            difficult_types_buttons = self._draw_difficult_options_buttons()
-
-            self._draw_darkness_options_title()
-            darkness_buttons = self._draw_darkness_options_buttons()
-
-            options_back = self._get_button(text="Back", y_position=8, is_selected=False)
-            options_back.update_text()
-            options_back.update(self.screen)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if options_back.check_for_input(options_mouse_pos):
-                        self.back = True
-                    for color_button in color_buttons:
-                        if event.type == pygame.MOUSEBUTTONUP and color_button.check_for_input(options_mouse_pos):
-                            self.selected_snake_color = color_button.value
-                            self.settings.snake_color = color_button.value
-                    for board_types_button in board_types_buttons:
-                        if event.type == pygame.MOUSEBUTTONUP and board_types_button.check_for_input(options_mouse_pos):
-                            self.selected_board_type = board_types_button.value
-                            self.settings.tile_type = board_types_button.value
-                    for difficult_types_button in difficult_types_buttons:
-                        if event.type == pygame.MOUSEBUTTONUP and difficult_types_button.check_for_input(
-                                options_mouse_pos):
-                            self.selected_difficult = difficult_types_button.value
-                            self.settings.update_difficulty(difficult_types_button.value)
-                    for darkness_button in darkness_buttons:
-                        if event.type == pygame.MOUSEBUTTONUP and darkness_button.check_for_input(options_mouse_pos):
-                            self.selected_darkness_mode = darkness_button.value
-                            self.settings.update_darkness_mode(darkness_button.value)
-
+            self._update_mouse_position()
+            self.draw_default_background()
+            self._draw_titles()
+            self.draw_buttons()
+            self.check_events()
             if self.back:
                 break
             pygame.display.update()

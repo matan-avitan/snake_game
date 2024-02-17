@@ -44,13 +44,13 @@ class Menu(BaseScreen):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self._update_mouse_position()
-                if self.play_button.check_for_input(position=self.menu_mouse_position):
+                if self.play_button.check_for_input(position=self.mouse_position):
                     Game(settings=self.settings, screen=self.screen).play_game()
-                if self.options_button.check_for_input(position=self.menu_mouse_position):
+                if self.options_button.check_for_input(position=self.mouse_position):
                     Options(settings=self.settings, screen=self.screen).options()
-                if self.leaderboard_button.check_for_input(position=self.menu_mouse_position):
+                if self.leaderboard_button.check_for_input(position=self.mouse_position):
                     Leaderboard(settings=self.settings, screen=self.screen).leaderboard()
-                if self.quit_button.check_for_input(position=self.menu_mouse_position):
+                if self.quit_button.check_for_input(position=self.mouse_position):
                     pygame.quit()
                     sys.exit()
 

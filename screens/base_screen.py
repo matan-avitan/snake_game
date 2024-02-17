@@ -16,10 +16,10 @@ class BaseScreen:
         self.game_cover = pygame.transform.scale(surface=pygame.image.load(self.MENU_COVER_PATH),
                                                  size=self.settings.screen_dimensions)
         self.game_cover.fill((255, 255, 255, 180), None, pygame.BLEND_RGBA_MULT)
-        self.menu_mouse_position = pygame.mouse.get_pos()
+        self.mouse_position = pygame.mouse.get_pos()
 
     def _update_mouse_position(self):
-        self.menu_mouse_position = pygame.mouse.get_pos()
+        self.mouse_position = pygame.mouse.get_pos()
 
     def _get_button(self, text, y_position) -> Button:
         return Button(image=None,
