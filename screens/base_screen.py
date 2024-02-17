@@ -18,7 +18,7 @@ class BaseScreen:
         self.game_cover.fill((255, 255, 255, 180), None, pygame.BLEND_RGBA_MULT)
         self.mouse_position = pygame.mouse.get_pos()
 
-    def _update_mouse_position(self):
+    def update_mouse_position(self):
         self.mouse_position = pygame.mouse.get_pos()
 
     def _get_button(self, text, y_position) -> Button:

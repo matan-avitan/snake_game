@@ -43,7 +43,7 @@ class Menu(BaseScreen):
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self._update_mouse_position()
+                self.update_mouse_position()
                 if self.play_button.check_for_input(position=self.mouse_position):
                     Game(settings=self.settings, screen=self.screen).play_game()
                 if self.options_button.check_for_input(position=self.mouse_position):

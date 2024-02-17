@@ -37,7 +37,7 @@ class Options(BaseScreen):
         self.darkness_buttons = self._get_buttons(button_option_type=self.button_options.darkness_mode_options,
                                                   selected_option=self.selected_darkness_mode, y_position=8,
                                                   starting_x_position=5)
-        self.options_back = self._get_button(text="Back", y_position=5)
+        self.options_back = self._get_button(text="Back", y_position=5.5)
 
     def _draw_options_title(self, text: str, screen_position: int):
         options_text = self.settings.get_font(50).render(text, True, "black")
@@ -114,7 +114,7 @@ class Options(BaseScreen):
 
     def options(self):
         while True:
-            self._update_mouse_position()
+            self.update_mouse_position()
             self.draw_default_background()
             self._draw_titles()
             self.draw_buttons()
