@@ -1,94 +1,64 @@
-from typing import Tuple
+import json
+from typing import Tuple, List
 
-from pydantic import BaseModel
+import pygame
 
-
-class TilesType(BaseModel):
-    tile_1: str
-    tile_2: str
-
-
-class Tiles(BaseModel):
-    grass: TilesType
-    stone: TilesType
-    dirt: TilesType
-
-
-class Path(BaseModel):
-    path: str
-
-
-class SnakeColor(BaseModel):
-    red: Path
-    green: Path
-    brown: Path
-
-
-class Difficult(BaseModel):
-    screen_update_time: int
-    fps: int
-    blocks: bool
-
-
-class DifficultyMapping(BaseModel):
-    easy: Difficult
-    medium: Difficult
-    hard: Difficult
+from game_settings.objects import ScoreBoard, ScoreLine, DIFFICULTY_MAPPING, SCORE_BOARD_JSON_PATH, TilesType, TILES, \
+    SNAKE_COLOR
 
 
 class Settings:
-    TILES = Tiles(
-        grass=TilesType(
-            tile_1='assets/grass-pattern1.jpg',
-            tile_2='assets/grass-pattern2.jpg'
-        ),
-        stone=TilesType(
-            tile_1='assets/stone-pattern1.jpg',
-            tile_2='assets/stone-pattern2.jpg'
-        ),
-        dirt=TilesType(
-            tile_1='assets/sand-pattern1.jpg',
-            tile_2='assets/sand-pattern2.jpg'
-        )
-    )
-
-    SNAKE_COLOR = SnakeColor(
-        red=Path(path='assets/snake-graphics-red.png'),
-        green=Path(path='assets/snake-graphics.png'),
-        brown=Path(path='assets/snake-graphics-brown.png')
-    )
-    DIFFICULTY_MAPPING = DifficultyMapping(
-        easy=Difficult(
-            screen_update_time=200,
-            fps=30,
-            blocks=False
-        ),
-        medium=Difficult(
-            screen_update_time=150,
-            fps=45,
-            blocks=False
-        ),
-        hard=Difficult(
-            screen_update_time=100,
-            fps=60,
-            blocks=False
-        )
-    )
 
     def __init__(self):
+        # screen:
         self.cell_size = 40
         self.cell_number = 25
-        self.difficulty = 'easy'
         self.screen_update_time = 100
         self.fps = 60
-        self.blocks = False
-
-        self.update_difficulty()
-        self.font = 'comicsansms'
-        self.tile_type = 'grass'
         self.screen_delay_on_game_over = 1000
+        self.game_font = 'comicsansms'
+
+        # options
+        self.difficulty = 'easy'
+        self.update_difficulty()
+        self.tile_type = 'grass'
         self.darkness_mode = False
         self.snake_color = 'green'
+
+        # scoreboard
+        self.scoreboard: ScoreBoard = self._read_scoreboard_from_json()
+
+    def update_scoreboard(self, score: int, name: str):
+        new_scoreline = ScoreLine(score=score, name=name)
+        if self.difficulty == 'easy':
+            self.scoreboard.easy.append(new_scoreline)
+        elif self.difficulty == 'medium':
+            self.scoreboard.medium.append(new_scoreline)
+        else:
+            self.scoreboard.hard.append(new_scoreline)
+
+        setattr(self.scoreboard, self.difficulty,
+                sorted(getattr(self.scoreboard, self.difficulty), key=lambda x: x.score, reverse=True))
+        self._save_scoreboard_to_json()
+
+    @staticmethod
+    def _read_scoreboard_from_json() -> ScoreBoard:
+        try:
+            with open(SCORE_BOARD_JSON_PATH, 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = {
+                'easy': [],
+                'medium': [],
+                'hard': []
+            }
+            with open(SCORE_BOARD_JSON_PATH, 'w') as file:
+                json.dump(data, file, indent=4)
+        return ScoreBoard(**data)
+
+    def _save_scoreboard_to_json(self):
+        with open(SCORE_BOARD_JSON_PATH, 'w') as file:
+            json.dump(self.scoreboard.dict(), file, indent=4)
 
     def update_darkness_mode(self, darkness_mode: bool):
         print('Darkness mode:', darkness_mode)
@@ -97,29 +67,32 @@ class Settings:
     def update_difficulty(self, difficulty='easy'):
         self.difficulty = difficulty
         if self.difficulty == 'easy':
-            difficult = self.DIFFICULTY_MAPPING.easy
+            difficult = DIFFICULTY_MAPPING.easy
         elif self.difficulty == 'medium':
-            difficult = self.DIFFICULTY_MAPPING.easy
+            difficult = DIFFICULTY_MAPPING.easy
         else:
-            difficult = self.DIFFICULTY_MAPPING.hard
+            difficult = DIFFICULTY_MAPPING.hard
         self.screen_update_time = difficult.screen_update_time
         self.fps = difficult.fps
 
     def get_tile_by_type(self) -> TilesType:
         if self.tile_type == 'grass':
-            return self.TILES.grass
+            return TILES.grass
         if self.tile_type == 'stone':
-            return self.TILES.stone
-        if self.tile_type == 'dirt':
-            return self.TILES.dirt
+            return TILES.stone
+        if self.tile_type == 'sand':
+            return TILES.sand
 
     def get_snake_color_path_by_type(self) -> str:
         if self.snake_color == 'green':
-            return self.SNAKE_COLOR.green.path
+            return SNAKE_COLOR.green.path
         if self.snake_color == 'red':
-            return self.SNAKE_COLOR.red.path
+            return SNAKE_COLOR.red.path
         if self.snake_color == 'brown':
-            return self.SNAKE_COLOR.brown.path
+            return SNAKE_COLOR.brown.path
+
+    def get_font(self, size):
+        return pygame.font.SysFont(self.game_font, size=size)
 
     @property
     def tile_dimensions(self) -> Tuple[int, int]:
@@ -136,9 +109,3 @@ class Settings:
     @property
     def screen_dimensions(self) -> Tuple[int, int]:
         return self.screen_width, self.screen_height
-
-    def change_cell_size(self, cell_size) -> None:
-        self.cell_size = cell_size
-
-    def change_cell_number(self, cell_number) -> None:
-        self.cell_number = cell_number

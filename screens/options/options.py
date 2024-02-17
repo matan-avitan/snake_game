@@ -2,7 +2,7 @@ import sys
 from typing import List
 
 import pygame
-from pygame import Surface
+from pygame import Surface, SRCALPHA
 from elements import Button
 from game_settings import Settings
 
@@ -16,7 +16,7 @@ class Options:
     BOARD_TYPE = [
         {"text": "Grass", "color": "green", 'value': 'grass'},
         {"text": "Stone", "color": "gray", 'value': 'stone'},
-        {"text": "Sand", "color": "brown", 'value': 'dirt'},
+        {"text": "Sand", "color": "brown", 'value': 'sand'},
     ]
     DIFFICULT_TYPE = [
         {"text": "Easy", "color": "green", 'value': 'easy'},
@@ -37,9 +37,11 @@ class Options:
         self.selected_darkness_mode = self.settings.darkness_mode
         self.game_cover = pygame.transform.scale(surface=pygame.image.load(self.MENU_COVER_PATH),
                                                  size=self.settings.screen_dimensions)
+        self.game_cover.fill((255, 255, 255, 180), None, pygame.BLEND_RGBA_MULT)  # Increase opacity
+
 
     def _get_font(self, size):
-        return pygame.font.SysFont(self.settings.font, size=size)
+        return pygame.font.SysFont(self.settings.game_font, size=size)
 
     def _get_button(self, text, y_position, x_position=None, is_selected=False, value=None) -> Button:
         color = "blue" if is_selected else "black"
@@ -167,6 +169,9 @@ class Options:
 
             # self.screen.fill("#ebedbe")
             self.screen.blit(self.game_cover, (0, 0))
+            background_surface = pygame.Surface((self.settings.screen_width, self.settings.screen_height), SRCALPHA)
+            background_surface.fill((0, 0, 0, 128))  # Semi-transparent black
+            self.screen.blit(background_surface, (0, 0))
 
             self._draw_snake_color_options_title()
             color_buttons = self._draw_snake_colors_buttons()

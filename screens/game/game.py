@@ -1,7 +1,7 @@
 import pygame
 from pygame import Vector2, Surface
 
-from elements import Snake, Fruit, Wall, Darkness
+from elements import Snake, Fruit, Wall, Darkness, SavingScoreModal
 from game_settings import Settings
 
 
@@ -14,7 +14,7 @@ class Game:
         self.score = 0
         self.darkness = Darkness(settings=self.settings, snake_position=self.snake.snake_body.position)
         self.game_over = False
-        self.game_font = pygame.font.SysFont(self.settings.font, 25)
+        self.game_font = pygame.font.SysFont(self.settings.game_font, 25)
         self.background_tile_1 = pygame.image.load(self.settings.get_tile_by_type().tile_1)
         self.background_tile_2 = pygame.image.load(self.settings.get_tile_by_type().tile_2)
         self.border_height_left = Wall(settings=self.settings, start_position=Vector2(0, 0),
@@ -96,11 +96,11 @@ class Game:
 
     def _draw_score(self):
         score_text = f'Score: {self.score}'
-        score_surface = self.game_font.render(score_text, True, (56, 74, 12))
+        score_surface = self.game_font.render(score_text, True, (255, 255, 255))
         score_surface.set_colorkey((0, 0, 0, 0))  # Set black color as transparent
 
-        score_x = int(self.settings.screen_width - 60)
-        score_y = int(self.settings.screen_width - 40)
+        score_x = int(self.settings.screen_width - 2 * self.settings.cell_size)
+        score_y = int(self.settings.screen_width - 0.5 * self.settings.cell_size)
         score_rect = score_surface.get_rect(center=(score_x, score_y))
 
         self.screen.blit(score_surface, score_rect)
@@ -127,8 +127,10 @@ class Game:
 
             if self.game_over:
                 pygame.time.delay(self.settings.screen_delay_on_game_over)
+                SavingScoreModal(settings=self.settings, score=self.score).draw_score_input_modal(screen=self.screen)
+
                 break
-            if not self.game_over:
+            else:
                 self.darkness.update_snake_position(self.snake.snake_body.position)
                 self._draw_elements()
             pygame.display.update()
