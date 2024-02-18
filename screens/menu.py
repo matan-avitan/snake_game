@@ -10,19 +10,22 @@ from screens.base_screen import BaseScreen
 from screens.game.game import Game
 from screens.leaderboard.leaderboard import Leaderboard
 from screens.options.options import Options
+from utils import resource_path
 
 
 class Menu(BaseScreen):
-    MENU_COVER_PATH = 'assets/snake-game-cover.jpg'
+    SOUND_PATH = 'sound/background-sound.ogg'
 
     def __init__(self, settings: Optional[Settings] = None, screen: Optional[Surface] = None):
         pygame.init()
+        pygame.mixer.init()
         super().__init__(settings=settings, screen=screen)
         pygame.display.set_caption('Snake Game')
         self.play_button = self._get_button(text="Play", y_position=2)
         self.options_button = self._get_button(text="Options", y_position=3)
         self.leaderboard_button = self._get_button(text="Leader Board", y_position=4)
         self.quit_button = self._get_button(text="Quit", y_position=5)
+        self.sound = pygame.mixer.Sound(resource_path(self.SOUND_PATH))
 
     def _draw_title(self):
         menu_text = self.settings.get_font(size=150).render('Menu', True, "#ebedbe")
@@ -52,6 +55,8 @@ class Menu(BaseScreen):
                     sys.exit()
 
     def menu(self):
+        self.sound.set_volume(0.3)
+        self.sound.play(-1)
         while True:
             self.draw_default_background()
             self._draw_title()

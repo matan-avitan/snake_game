@@ -13,6 +13,10 @@
             "name": "Test 2"
         },
         {
+            "score": 12,
+            "name": "Matan"
+        },
+        {
             "score": 4,
             "name": "ma"
         },
@@ -79,8 +83,20 @@
             "name": "Matan"
         },
         {
+            "score": 5,
+            "name": "a"
+        },
+        {
+            "score": 5,
+            "name": "Test1"
+        },
+        {
             "score": 4,
             "name": "Tests"
+        },
+        {
+            "score": 4,
+            "name": "Test"
         },
         {
             "score": 3,

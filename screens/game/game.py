@@ -8,6 +8,8 @@ from utils import resource_path
 
 
 class Game(BaseScreen):
+    SOUND_FILE_PATH = 'sound/crunch.wav'
+
     def __init__(self, settings: Settings, screen: Surface):
         super().__init__(settings=settings, screen=screen)
         self.snake = Snake(settings=self.settings, direction=Vector2(1, 0))
@@ -29,6 +31,7 @@ class Game(BaseScreen):
                                       end_position=Vector2(self.settings.cell_number - 1,
                                                            self.settings.cell_number - 1))
         self.screen_update = pygame.USEREVENT
+        self.sound = pygame.mixer.Sound(resource_path(self.SOUND_FILE_PATH))
 
     def _update(self):
         self.snake.move()
@@ -53,13 +56,18 @@ class Game(BaseScreen):
         self._draw_score()
 
     def _check_collision(self):
+        self._check_snake_collision_with_fruit()
+        self._check_snake_collision_with_boundary()
+        self._check_snake_collision_with_itself()
+
+    def _check_snake_collision_with_fruit(self):
         if self.fruit.position == self.snake.snake_body.position:
+            self.sound.set_volume(1.0)
+            self.sound.play()
             self.snake.eat_fruit = True
             self.score += 1
             fruit_forbidden_positions = self.snake.snake_body_positions
             self.fruit = Fruit(settings=self.settings, fruit_forbidden_positions=fruit_forbidden_positions)
-        self._check_snake_collision_with_boundary()
-        self._check_snake_collision_with_itself()
 
     def _check_snake_collision_with_itself(self):
         snake_head = self.snake.snake_body
