@@ -62,7 +62,3 @@ class SavingScoreModal:
             pygame.display.flip()
 
         self.settings.update_scoreboard(score=self.score, name=name)
-
-    def _save_score(self, name, score):
-        with open("scores.txt", "a") as file:
-            file.write(f"{name}: {score}\n")

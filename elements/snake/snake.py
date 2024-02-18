@@ -135,7 +135,6 @@ class Snake:
             block_to_draw = block_to_draw.next_block
 
     def update_direction(self, direction):
-        # check don't try to do reverse
         if direction.x * self._next_direction.x != -1 and direction.y * self._next_direction.y != -1:
             self._next_direction = direction
 

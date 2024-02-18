@@ -13,4 +13,5 @@ class ScoreBoard(BaseModel):
     medium: List[ScoreLine]
     hard: List[ScoreLine]
 
+
 SCORE_BOARD_JSON_PATH = 'scoreboard.json'
