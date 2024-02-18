@@ -47,6 +47,18 @@
         {
             "score": 1,
             "name": "a"
+        },
+        {
+            "score": 1,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "a"
+        },
+        {
+            "score": 0,
+            "name": "a"
         }
     ],
     "medium": [
@@ -61,6 +73,10 @@
         {
             "score": 5,
             "name": "matan avitan"
+        },
+        {
+            "score": 5,
+            "name": "Matan"
         },
         {
             "score": 4,
@@ -101,6 +117,10 @@
         {
             "score": 0,
             "name": "asd"
+        },
+        {
+            "score": 0,
+            "name": "a"
         },
         {
             "score": 0,
@@ -155,6 +175,10 @@
         {
             "score": 2,
             "name": "hi"
+        },
+        {
+            "score": 2,
+            "name": "a"
         },
         {
             "score": 1,

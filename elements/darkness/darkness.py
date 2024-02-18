@@ -4,6 +4,7 @@ from pygame import Vector2, Surface
 from typing import List
 
 from game_settings import Settings
+from utils import resource_path
 
 
 class Darkness:
@@ -14,7 +15,7 @@ class Darkness:
         self.settings = settings
         self.snake_position = snake_position
         self.light = self._calculate_light()
-        darkness_img = pygame.image.load(self.DARKNESS_PATH).convert_alpha()
+        darkness_img = pygame.image.load(resource_path(self.DARKNESS_PATH)).convert_alpha()
         self.darkness_img = pygame.transform.scale(surface=darkness_img, size=self.settings.tile_dimensions)
         self.light_img = pygame.transform.scale(surface=darkness_img, size=self.settings.tile_dimensions)
         self.light_img.set_colorkey((0, 0, 0))

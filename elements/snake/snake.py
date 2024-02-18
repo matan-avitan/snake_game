@@ -9,7 +9,6 @@ from utils import SpriteExtractor
 
 
 class Snake:
-    SNAKE_IMG_PATH = "assets/snake-graphics.png"
     IMG_ROW = 3
     IMG_COL = 0
     WIDTH = 64

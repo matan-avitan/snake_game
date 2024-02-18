@@ -61,7 +61,6 @@ class Settings:
             json.dump(self.scoreboard.dict(), file, indent=4)
 
     def update_darkness_mode(self, darkness_mode: bool):
-        print('Darkness mode:', darkness_mode)
         self.darkness_mode = darkness_mode
 
     def update_difficulty(self, difficulty='easy'):

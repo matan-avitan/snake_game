@@ -2,6 +2,7 @@ import pygame
 from pygame import Vector2
 
 from game_settings import Settings
+from utils import resource_path
 
 
 class Wall:
@@ -11,7 +12,7 @@ class Wall:
         self.settings = settings
         self.start_position = start_position
         self.end_position = end_position
-        wall_img = pygame.image.load(self.WALL_PATH).convert_alpha()
+        wall_img = pygame.image.load(resource_path(self.WALL_PATH)).convert_alpha()
         self.wall_img = pygame.transform.scale(surface=wall_img, size=self.settings.tile_dimensions)
         self.tiles = []
         if self.start_position.x == self.end_position.x:

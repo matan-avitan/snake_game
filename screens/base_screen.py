@@ -5,6 +5,7 @@ from pygame import Surface, SRCALPHA
 
 from elements import Button
 from game_settings import Settings
+from utils import resource_path
 
 
 class BaseScreen:
@@ -13,7 +14,7 @@ class BaseScreen:
     def __init__(self, settings: Optional[Settings] = None, screen: Optional[Surface] = None):
         self.settings = settings if settings else Settings()
         self.screen = screen if screen else pygame.display.set_mode(self.settings.screen_dimensions)
-        self.game_cover = pygame.transform.scale(surface=pygame.image.load(self.MENU_COVER_PATH),
+        self.game_cover = pygame.transform.scale(surface=pygame.image.load(resource_path(self.MENU_COVER_PATH)),
                                                  size=self.settings.screen_dimensions)
         self.game_cover.fill((255, 255, 255, 180), None, pygame.BLEND_RGBA_MULT)
         self.mouse_position = pygame.mouse.get_pos()

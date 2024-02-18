@@ -4,6 +4,7 @@ from pygame import Vector2, Surface
 from elements import Snake, Fruit, Wall, Darkness, SavingScoreModal
 from game_settings import Settings
 from screens.base_screen import BaseScreen
+from utils import resource_path
 
 
 class Game(BaseScreen):
@@ -14,8 +15,8 @@ class Game(BaseScreen):
         self.score = 0
         self.darkness = Darkness(settings=self.settings, snake_position=self.snake.snake_body.position)
         self.game_over = False
-        self.background_tile_1 = pygame.image.load(self.settings.get_tile_by_type().tile_1)
-        self.background_tile_2 = pygame.image.load(self.settings.get_tile_by_type().tile_2)
+        self.background_tile_1 = pygame.image.load(resource_path(self.settings.get_tile_by_type().tile_1))
+        self.background_tile_2 = pygame.image.load(resource_path(self.settings.get_tile_by_type().tile_2))
         self.border_height_left = Wall(settings=self.settings, start_position=Vector2(0, 0),
                                        end_position=Vector2(0, self.settings.cell_number - 1))
         self.border_width_up = Wall(settings=self.settings, start_position=Vector2(0, 0),

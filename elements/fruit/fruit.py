@@ -5,7 +5,7 @@ import pygame
 from pygame import Vector2
 
 from game_settings import Settings
-from utils import SpriteExtractor
+from utils import SpriteExtractor, resource_path
 
 
 class Fruit:
@@ -23,7 +23,7 @@ class Fruit:
         self._update_fruit_image()
 
     def _update_fruit_image(self):
-        sprites = SpriteExtractor(self.FRUIT_IMG_PATH)
+        sprites = SpriteExtractor(resource_path(self.FRUIT_IMG_PATH))
         fruit_surface = sprites.get_sprite(x=self.IMG_COL * self.WIDTH, y=self.IMG_ROW * self.HEIGHT, width=self.WIDTH,
                                            height=self.HEIGHT)
         self.apple_image = pygame.transform.scale(
